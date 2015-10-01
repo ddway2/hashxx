@@ -22,7 +22,7 @@ template<
 	typename T,
 	typename ...Args
 >
-inline entry_ptr<T> make_entry(Args&& args...)
+inline entry_ptr<T> make_entry(Args&& ...args)
 { return std::make_unique<T>(std::forward<Args>(args)...); }
 
 }	// namespace hashxx

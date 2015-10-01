@@ -26,8 +26,8 @@ using namespace hashxx;
 
 using my_index = mem_index_type<
 	my_struct,
-	&my_struct::value1,
-	uint64_t
+	uint64_t,
+	&my_struct::value1
 >;
 
 BOOST_FIXTURE_TEST_SUITE(indexes_test, indexes_fixture);

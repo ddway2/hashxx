@@ -13,22 +13,18 @@ using pos_value_type = size_t;
 template<typename T>
 using index_type_impl = std::unordered_map<T, pos_value_type>;
 
-struct index_type_base
-{
-	virtual ~index_type_base() = default;
-}
+struct index_type_base {};
 
 template<
 	typename T,
-	typename MemberAccessor,
-	typename MemberType
+	typename MemberType,
+	MemberType T::* MemberAccessor
 >
 class mem_index_type final
 : public index_type_base
 {
 public:
 	using entry_type = entry<T>;
-	using index_accessor_type = T::* MemberAccessor;
 	using index_value_type = MemberType;
 
 	using index_type = index_type_impl<index_value_type>;
@@ -50,7 +46,7 @@ public:
 	{ index_.clear(); }
 
 	inline index_value_type get_index(const entry_type& obj)
-	{ return (obj.data).*member_; }
+	{ return (obj.data).*MemberAccessor; }
 
 	inline void update_index(pos_value_type pos, const index_value_type& new_value, const index_value_type& old_value)
 	{
@@ -61,7 +57,7 @@ public:
 
 	inline void update_index(pos_value_type pos, const entry_type& obj, const index_value_type& old_value)
 	{ 
-		index_value_type value = (obj.data).*member_; 
+		index_value_type value = (obj.data).*MemberAccessor; 
 		if (value != old_value) {
 			index_[value] = pos;
 		}
@@ -69,14 +65,13 @@ public:
 
 	inline void update_index(pos_value_type pos, const entry_type& obj)
 	{
-		index_value_type value = (obj.data).*member_;
+		index_value_type value = (obj.data).*MemberAccessor;
 		index_[value] = pos;
 	}
 
 	inline size_t size() const
 	{ return index_.size(); }
 private:
-	index_accessor_type		member_;
 	index_type 				index_;
 };
 
