@@ -2,7 +2,7 @@
 #include <hashxx/unit_test.hpp>
 #include <hashxx/system_config.hpp>
 
-#include <hashxx/index_field.hpp>
+#include <hashxx/index/index_field.hpp>
 
 struct my_struct
 {

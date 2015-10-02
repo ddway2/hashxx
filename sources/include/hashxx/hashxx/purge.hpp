@@ -43,6 +43,7 @@ public:
 			entry->data.~T();
 			entry->removed = false;
 			impl_.purge_removed(entry);
+			purge_size_--;
 		}
 	}
 

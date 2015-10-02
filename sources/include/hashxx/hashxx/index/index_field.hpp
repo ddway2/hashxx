@@ -74,6 +74,7 @@ public:
 
 	inline size_t size() const
 	{ return index_.size(); }
+	
 private:
 	index_type 				index_;
 };

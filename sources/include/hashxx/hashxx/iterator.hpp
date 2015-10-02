@@ -1,51 +1,62 @@
 #pragma once
 
 #include <hashxx/entry.hpp>
+#include <hashxx/compiler.hpp>
 
 namespace hashxx {
 	
 template<
 	typename Container
 >
-class iterator {
+class iterator_impl {
 public:
 	using container_type = Container;
-	using value_type = typename T::value_type;
+	using value_type = typename Container::value_type;
 	using entry_type = entry<value_type>;
 
-	using self_type = iterator;
-	using pointer = T*;
-	using reference = T&;
+	using self_type = iterator_impl;
+	using pointer = value_type*;
+	using reference = value_type&;
 
 public:
-
-	explicit iterator(entry_type* entry)
+	explicit iterator_impl(entry_type* entry)
 	: entry_(entry)
 	{}
 
 	inline pointer operator->() 
 	{ 
-		T* result = nullptr;
-		if (entry_) {
+		pointer result = nullptr;
+		if (like(entry_)) {
 			result = &(entry_->data);
 		} else {
-			throw std::runtime_error("hashxx::iterator operator-> - cannot dereference null value");
+			throw std::runtime_error("hashxx::iterator_impl operator-> - cannot dereference null value");
 		}
 		return result; 
 	}
 
 	inline reference operator*()
 	{
-		T* result = nullptr;
-		if (entry_) {
+		pointer result = nullptr;
+		if (like(entry_)) {
 			result = &(entry_->data);
 		} else {
-			throw std::runtime_error("hash::iterator operator* - cannot dereference null value");
+			throw std::runtime_error("hash::iterator_impl operator* - cannot dereference null value");
 		}
 		return *result;
 	}
 
+	friend bool operator== (const iterator_impl& ls, const iterator_impl& rs)
+	{ return ls.entry_ == rs.entry_; }
 
+	friend bool operator!= (const iterator_impl& ls, const iterator_impl& rs)
+	{ return ls.entry_ != rs.entry_; }
+
+	inline bool is_valid() const
+	{ return entry_ != nullptr; }
+
+private:
+	iterator_impl()
+	{}
 
 private:
 	entry_type*		entry_{nullptr};
