@@ -45,7 +45,7 @@ public:
 	inline void clear()
 	{ index_.clear(); }
 
-	inline index_value_type get_index(const entry_type& obj)
+	inline index_value_type get(const entry_type& obj)
 	{ return (obj.data).*MemberAccessor; }
 
 	inline void update_index(pos_value_type pos, const index_value_type& new_value, const index_value_type& old_value)
@@ -68,6 +68,9 @@ public:
 		index_value_type value = (obj.data).*MemberAccessor;
 		index_[value] = pos;
 	}
+
+	inline bool check_index(const index_value_type& index)
+	{ return index_.count(index) > 0; }
 
 	inline size_t size() const
 	{ return index_.size(); }
