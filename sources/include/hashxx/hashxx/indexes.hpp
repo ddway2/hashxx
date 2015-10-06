@@ -45,6 +45,7 @@ template<
 class indexes_wrapper_type {
 public:
 	using indexes_type = std::tuple<Indexes...>;
+	using indexes_value_type = std::tuple<typename Indexes::index_value_type...>;
 	using entry_type = entry<T>;
 	using entry_ptr = entry_type*;
 
@@ -62,6 +63,11 @@ public:
 	inline typename std::tuple_element<I, indexes_type>::type& get()
 	{ return std::get<I>(indexes_); }
 
+	static indexes_value_type get_values(entry_ptr entry)
+	{
+		return std::make_tuple(Indexes::get(entry)...);
+	}
+
 	inline void clear_indexes()
 	{
 		detail::for_each(indexes_, [](auto& index) {
@@ -73,7 +79,7 @@ public:
 	{
 		size_t pos = entry->index;
 		detail::for_each(indexes_, [&](auto& index) {
-			index.update_index(pos, *entry);
+			index.update_index(pos, entry);
 		});
 	}
 
@@ -88,6 +94,6 @@ template<
 	typename T,
 	typename ...Indexes
 >
-using indexes_by = indexes_wrapper_type<T, Indexes...>;
+using index_by = indexes_wrapper_type<T, Indexes...>;
 
 }	// namespace hashxx

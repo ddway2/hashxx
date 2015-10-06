@@ -48,6 +48,17 @@ public:
 		available_queue_->enqueue(entry);
 	}
 
+	/// for_each
+	template<typename Function>
+	inline void for_each(Function&& f)
+	{
+		for (size_t i = 0 ; i < container_size_ ; ++i) {
+			if (container_[i]->activate.load()) {
+				f(container_[i]);
+			}
+		}
+	}
+
 	inline size_t size() const
 	{ return available_size_.load(); }
 

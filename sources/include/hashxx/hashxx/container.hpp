@@ -3,6 +3,7 @@
 #include <hashxx/entry.hpp>
 #include <hashxx/purge.hpp>
 #include <hashxx/iterator.hpp>
+#include <hashxx/indexes.hpp>
 
 namespace hashxx {
 
@@ -19,6 +20,7 @@ class container final
 : public container_base
 {
 public:
+	using value_type = T;
 	using self_type = container;
 	using iterator = iterator_impl<self_type>;
 	using container_impl_type = container_impl<T>;
@@ -26,6 +28,8 @@ public:
 
 	using entry_type = entry<T>;
 	using entry_ptr = entry_type*;
+
+	using indexes_type = Indexes;
 public:
 
 	container()
@@ -34,16 +38,17 @@ public:
 
 	explicit container(size_t container_size)
 	: container_impl_{container_size},
-	  container_purge_{container_impl_}
+	  container_purge_{container_impl_},
+	  indexes_{container_size}
 	{}
 
 	/// Data insertion
 	iterator insert(const T& elem)
 	{
 		auto entry = container_impl_.available_entry();
-		entry.data = elem;
+		entry->data = elem;
 
-		index_new_entry(entry);
+		indexes_.update_new_index(entry);
 
 		return iterator{entry};
 	}
@@ -52,9 +57,9 @@ public:
 	iterator emplace(Args&&... args)
 	{
 		auto entry = container_impl_.available_entry();
-		entry.data = T(std::forward<Args>(args)...);
+		entry->data = T(std::forward<Args>(args)...);
 
-		index_new_entry(entry);
+		indexes_.update_new_index(entry);
 
 		return iterator{entry};
 	}
@@ -64,7 +69,7 @@ public:
 	{
 		bool result = false;
 		if (it.is_valid()) {
-			// TODO: get old value index
+			auto old_value = indexes_type::get_value(it.entry_);
 			call(*it);
 			// TODO: compute new index (if necessary)
 			result = true;
@@ -90,10 +95,19 @@ public:
 	inline iterator end() const
 	{ return iterator(); }
 
+	inline size_t size() const
+	{ return container_impl_.capacity() - container_impl_.size(); }
+
+	inline size_t capacity() const
+	{ return container_impl_.capacity(); }
+
 private:
-	void index_new_entry(entry_ptr entry)
+	void reindex()
 	{
-		// TODO: indexation
+		indexes_.clear_indexes();
+		container_impl_.for_each([&](entry_ptr entry){
+			indexes_.update_new_index(entry);
+		});
 	}
 
 	void index_entry(entry_ptr entry)
@@ -104,6 +118,7 @@ private:
 private:
 	container_impl_type		container_impl_;
 	container_purge_type	container_purge_;
+	indexes_type			indexes_;
 
 };
 

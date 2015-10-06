@@ -21,6 +21,7 @@ class mem_index_type final
 {
 public:
 	using entry_type = entry<T>;
+	using entry_ptr = entry_type*;
 	using index_value_type = MemberType;
 
 	using index_type = index_type_impl<index_value_type>;
@@ -38,8 +39,8 @@ public:
 	inline void clear()
 	{ index_.clear(); }
 
-	inline index_value_type get(const entry_type& obj)
-	{ return (obj.data).*MemberAccessor; }
+	static index_value_type get(entry_ptr ptr)
+	{ return (ptr->data).*MemberAccessor; }
 
 	inline void update_index(size_t pos, const index_value_type& new_value, const index_value_type& old_value)
 	{
@@ -48,17 +49,17 @@ public:
 		}
 	}
 
-	inline void update_index(size_t pos, const entry_type& obj, const index_value_type& old_value)
+	inline void update_index(size_t pos, entry_ptr entry, const index_value_type& old_value)
 	{ 
-		index_value_type value = (obj.data).*MemberAccessor; 
+		index_value_type value = (entry->data).*MemberAccessor; 
 		if (value != old_value) {
 			index_[value] = pos;
 		}
 	}
 
-	inline void update_index(size_t pos, const entry_type& obj)
+	inline void update_index(size_t pos, entry_ptr entry)
 	{
-		index_value_type value = (obj.data).*MemberAccessor;
+		index_value_type value = (entry->data).*MemberAccessor;
 		index_[value] = pos;
 	}
 

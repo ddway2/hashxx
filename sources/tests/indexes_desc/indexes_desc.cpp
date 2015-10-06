@@ -21,7 +21,7 @@ struct indexes_desc_fixture {
 
 using namespace hashxx;
 
-using index1_type = indexes_by<
+using index1_type = index_by<
 	my_struct,
 	mem_index_type<my_struct, uint64_t, &my_struct::value1>,
 	mem_index_type<my_struct, uint32_t, &my_struct::value2>
