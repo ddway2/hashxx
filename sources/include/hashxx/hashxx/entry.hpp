@@ -4,6 +4,8 @@
 
 namespace hashxx {
 
+const size_t default_container_size = 100000;
+
 template<typename T>
 struct entry {
 	using value_type = T;

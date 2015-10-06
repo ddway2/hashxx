@@ -12,9 +12,7 @@ struct my_struct {
 };
 
 struct container_fixture
-{
-
-};
+{};
 
 using container_type = container_impl<my_struct>;
 
@@ -42,5 +40,6 @@ BOOST_AUTO_TEST_CASE(get_and_retrieve_entry)
 	c1.purge_removed(v1);
 	BOOST_CHECK_EQUAL(c1.size(), 100);
 }
+
 
 BOOST_AUTO_TEST_SUITE_END();

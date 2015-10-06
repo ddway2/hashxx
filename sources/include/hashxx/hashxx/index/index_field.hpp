@@ -6,12 +6,8 @@
 
 namespace hashxx {
 
-const size_t	default_index_count = 300000;
-
-using pos_value_type = size_t;
-
 template<typename T>
-using index_type_impl = std::unordered_map<T, pos_value_type>;
+using index_type_impl = std::unordered_map<T, size_t>;
 
 struct index_type_base {};
 
@@ -30,15 +26,12 @@ public:
 	using index_type = index_type_impl<index_value_type>;
 public:
 	mem_index_type()
-	: index_{default_index_count}
+	: index_{default_container_size}
 	{}
 
 	mem_index_type(size_t index_count)
 	: index_{index_count}
 	{}
-
-	mem_index_type(const mem_index_type& ) = delete;
-	mem_index_type& operator=(const mem_index_type& ) = delete;
 
 	virtual ~mem_index_type() = default;
 
@@ -48,14 +41,14 @@ public:
 	inline index_value_type get(const entry_type& obj)
 	{ return (obj.data).*MemberAccessor; }
 
-	inline void update_index(pos_value_type pos, const index_value_type& new_value, const index_value_type& old_value)
+	inline void update_index(size_t pos, const index_value_type& new_value, const index_value_type& old_value)
 	{
 		if (new_value != old_value) {
 			index_[new_value] = pos;
 		}
 	}
 
-	inline void update_index(pos_value_type pos, const entry_type& obj, const index_value_type& old_value)
+	inline void update_index(size_t pos, const entry_type& obj, const index_value_type& old_value)
 	{ 
 		index_value_type value = (obj.data).*MemberAccessor; 
 		if (value != old_value) {
@@ -63,7 +56,7 @@ public:
 		}
 	}
 
-	inline void update_index(pos_value_type pos, const entry_type& obj)
+	inline void update_index(size_t pos, const entry_type& obj)
 	{
 		index_value_type value = (obj.data).*MemberAccessor;
 		index_[value] = pos;
