@@ -42,6 +42,7 @@ public:
 	{
 	public:
 		using index_type = typename std::tuple_element<I, typename indexes_type::indexes_type>::type;
+		using member_type = typename index_type::index_value_type;
 
 	public:
 		find_wrapper(container_impl_type& impl, indexes_type& indexes)
@@ -49,17 +50,11 @@ public:
 		  indexes_(indexes)
 		{}
 
-		template<typename Value>
-		inline iterator find(const Value& v)
+		inline iterator find(const member_type& v)
 		{
 			size_t pos = 0;
 			if (indexes_.get<I>().find(v, pos)) {
 				entry_ptr entry = impl_.at(pos);
-				auto t = index_type::get(entry);
-				std::cout << "index_type::get(entry): "<< demangle_type_name(typeid(t).name()) << std::endl;
-				std::cout << "v: " << demangle_type_name(typeid(v).name()) << std::endl;
-
-
 				if (
 						entry->activate.load() && 
 						!entry->removed.load() &&
