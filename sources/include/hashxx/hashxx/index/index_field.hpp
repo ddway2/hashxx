@@ -63,6 +63,16 @@ public:
 		index_[value] = pos;
 	}
 
+	inline bool find(const index_value_type& v, size_t& pos)
+	{
+		auto found = index_.find(v);
+		if (found != index_.end()) {
+			pos = found->second;
+			return true;
+		}
+		return false;
+	}
+
 	inline bool check_index(const index_value_type& index)
 	{ return index_.count(index) > 0; }
 

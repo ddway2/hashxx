@@ -54,9 +54,9 @@ public:
 	inline bool is_valid() const
 	{ return entry_ != nullptr; }
 
-private:
 	iterator_impl()
 	{}
+
 
 private:
 	entry_type*		entry_{nullptr};

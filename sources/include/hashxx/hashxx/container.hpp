@@ -1,9 +1,15 @@
 #pragma once
 
+#include <tuple>
+#include <iostream>
+#include <typeinfo>
+
 #include <hashxx/entry.hpp>
 #include <hashxx/purge.hpp>
 #include <hashxx/iterator.hpp>
 #include <hashxx/indexes.hpp>
+
+#include <hashxx/compiler.hpp>
 
 namespace hashxx {
 
@@ -30,6 +36,45 @@ public:
 	using entry_ptr = entry_type*;
 
 	using indexes_type = Indexes;
+
+	template<size_t I>
+	class find_wrapper
+	{
+	public:
+		using index_type = typename std::tuple_element<I, typename indexes_type::indexes_type>::type;
+
+	public:
+		find_wrapper(container_impl_type& impl, indexes_type& indexes)
+		: impl_(impl),
+		  indexes_(indexes)
+		{}
+
+		template<typename Value>
+		inline iterator find(const Value& v)
+		{
+			size_t pos = 0;
+			if (indexes_.get<I>().find(v, pos)) {
+				entry_ptr entry = impl_.at(pos);
+				auto t = index_type::get(entry);
+				std::cout << "index_type::get(entry): "<< demangle_type_name(typeid(t).name()) << std::endl;
+				std::cout << "v: " << demangle_type_name(typeid(v).name()) << std::endl;
+
+
+				if (
+						entry->activate.load() && 
+						!entry->removed.load() &&
+						index_type::get(entry) == v
+					) {
+					return iterator(entry);
+				}
+			} 
+			return iterator();
+		}
+
+	private:
+		container_impl_type& 	impl_;
+		indexes_type&			indexes_;
+	};
 public:
 
 	container()
@@ -86,11 +131,10 @@ public:
 		}
 	}
 
-	template<typename Tag>
-	iterator find()
-	{
-		return iterator();
-	}
+	template<size_t I>
+	inline find_wrapper<I> get()
+	{ return find_wrapper<I>{container_impl_, indexes_}; }
+
 
 	inline iterator end() const
 	{ return iterator(); }

@@ -59,6 +59,9 @@ public:
 		}
 	}
 
+	inline entry_ptr at(size_t i)
+	{ return container_[i]; }
+
 	inline size_t size() const
 	{ return available_size_.load(); }
 
