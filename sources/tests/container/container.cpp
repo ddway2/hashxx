@@ -64,5 +64,30 @@ BOOST_AUTO_TEST_CASE(insert_and_find_one_element)
 	}
 }
 
+BOOST_AUTO_TEST_CASE(insert_find_and_modify_one_element)
+{
+	container_type c1{100};
+	my_struct m1;
+	m1.value1 = 10;
+	m1.value2 = 25;
+	m1.data = "toto";
+	c1.insert(m1);
+
+	auto it = c1.get<0>().find(10);
+	BOOST_CHECK_MESSAGE(it != c1.end(), "Check iterator validity for it");
+
+	bool result = c1.modify(it, [](auto& v){
+		v.value1 = 11;
+	});
+
+	BOOST_CHECK_MESSAGE(result, "Modify Done");
+
+	auto found_10 = c1.get<0>().find(10);
+	BOOST_CHECK_MESSAGE(found_10 == c1.end(), "Check iterator validity for found_10");
+
+	auto found_11 = c1.get<0>().find(11);
+	BOOST_CHECK_MESSAGE(found_11 != c1.end(), "Check iterator validity for found_11");
+	BOOST_CHECK_EQUAL(found_11->data, "toto");
+}
 
 BOOST_AUTO_TEST_SUITE_END();

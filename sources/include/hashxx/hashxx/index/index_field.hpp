@@ -49,18 +49,18 @@ public:
 		}
 	}
 
-	inline void update_index(size_t pos, entry_ptr entry, const index_value_type& old_value)
+	inline void update_index(entry_ptr entry, const index_value_type& old_value)
 	{ 
 		index_value_type value = (entry->data).*MemberAccessor; 
 		if (value != old_value) {
-			index_[value] = pos;
+			index_[value] = entry->index;
 		}
 	}
 
-	inline void update_index(size_t pos, entry_ptr entry)
+	inline void update_index(entry_ptr entry)
 	{
 		index_value_type value = (entry->data).*MemberAccessor;
-		index_[value] = pos;
+		index_[value] = entry->index;
 	}
 
 	inline bool find(const index_value_type& v, size_t& pos)

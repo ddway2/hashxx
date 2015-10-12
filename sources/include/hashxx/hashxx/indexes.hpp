@@ -26,11 +26,43 @@ template<
 	typename Tuple,
 	typename F
 >
-void for_each(Tuple&& tuple, F&& func)
+inline void for_each(Tuple&& tuple, F&& func)
 {
 	constexpr size_t N = std::tuple_size< std::remove_reference_t<Tuple> >::value;
 	for_each_impl(
 		std::forward<Tuple>(tuple),
+		std::forward<F>(func),
+		std::make_index_sequence<N>{}
+	);
+}
+
+template<
+	typename Tuple1,
+	typename Tuple2,
+	typename F,
+	size_t ...Indices
+>
+void for_tuples_impl(Tuple1&& t1, Tuple2&& t2, F&& func, std::index_sequence<Indices...>)
+{
+	using fake_array = int[];
+	(void)fake_array{1,
+		(func(std::get<Indices>(std::forward<Tuple1>(t1)), std::get<Indices>(std::forward<Tuple2>(t2))), void(), int{})...
+	};
+}
+
+template<
+	typename Tuple1,
+	typename Tuple2,
+	typename F
+
+>
+inline void for_tuples(Tuple1&& t1, Tuple2&& t2, F&& func)
+{
+	constexpr size_t N = std::tuple_size< std::remove_reference_t<Tuple1> >::value;
+
+	for_tuples_impl(
+		std::forward<Tuple1>(t1),
+		std::forward<Tuple2>(t2),
 		std::forward<F>(func),
 		std::make_index_sequence<N>{}
 	);
@@ -59,15 +91,16 @@ public:
 	: indexes_(Indexes{index_count}...) 
 	{}
 
+	/// Get index tuples
 	template<size_t I>
 	inline typename std::tuple_element<I, indexes_type>::type& get()
 	{ return std::get<I>(indexes_); }
 
+	/// Create tuple of indexed value
 	static indexes_value_type get_values(entry_ptr entry)
-	{
-		return std::make_tuple(Indexes::get(entry)...);
-	}
+	{ return std::make_tuple(Indexes::get(entry)...); }
 
+	/// Clear all index
 	inline void clear_indexes()
 	{
 		detail::for_each(indexes_, [](auto& index) {
@@ -75,12 +108,24 @@ public:
 		});
 	}
 
+	/// Update new entry
 	inline void update_new_index(entry_ptr entry)
 	{
-		size_t pos = entry->index;
 		detail::for_each(indexes_, [&](auto& index) {
-			index.update_index(pos, entry);
+			index.update_index(entry);
 		});
+	}
+
+	/// Update index
+	inline void update_index(entry_ptr entry, const indexes_value_type& old_value)
+	{
+		detail::for_tuples(
+			indexes_,
+			old_value,
+			[&](auto& index, const auto& old_value) {
+				index.update_index(entry, old_value);
+			}
+		);
 	}
 
 	inline size_t size() const

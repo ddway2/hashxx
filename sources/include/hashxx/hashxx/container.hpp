@@ -109,9 +109,9 @@ public:
 	{
 		bool result = false;
 		if (it.is_valid()) {
-			auto old_value = indexes_type::get_value(it.entry_);
+			auto old_values = indexes_type::get_values(it.get());
 			call(*it);
-			// TODO: compute new index (if necessary)
+			indexes_.update_index(it.get(), old_values);
 			result = true;
 		}
 		return result;
@@ -120,8 +120,8 @@ public:
 	void erase(iterator it)
 	{
 		if (like(it.is_valid())) {
-			if (!it.entry_->removed.load()) {
-				container_purge_->erase_entry(it.entry_);
+			if (!it.get()->removed.load()) {
+				container_purge_->erase_entry(it.get());
 			}
 		}
 	}
@@ -147,11 +147,6 @@ private:
 		container_impl_.for_each([&](entry_ptr entry){
 			indexes_.update_new_index(entry);
 		});
-	}
-
-	void index_entry(entry_ptr entry)
-	{
-		// TODO: indexation
 	}
 
 private:

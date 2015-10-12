@@ -6,7 +6,7 @@
 namespace hashxx {
 	
 template<
-	typename Container
+	class Container
 >
 class iterator_impl {
 public:
@@ -57,6 +57,8 @@ public:
 	iterator_impl()
 	{}
 
+	inline entry_type* get()
+	{ return entry_; }
 
 private:
 	entry_type*		entry_{nullptr};
