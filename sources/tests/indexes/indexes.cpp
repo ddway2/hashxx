@@ -3,11 +3,15 @@
 #include <hashxx/system_config.hpp>
 
 #include <hashxx/index/index_field.hpp>
+#include <hashxx/index/index_mem_fn.hpp>
 
 struct my_struct
 {
 	uint64_t		value1;
 	uint32_t		value2;
+
+	inline uint16_t get()
+	{ return 10; }
 };
 
 
@@ -34,6 +38,12 @@ using my_index2 = mem_index_type<
 	my_struct,
 	uint32_t,
 	&my_struct::value2
+>;
+
+using my_index3 = mem_fn_index_type<
+	my_struct,
+	uint16_t,
+	&my_struct::get
 >;
 
 BOOST_FIXTURE_TEST_SUITE(indexes_test, indexes_fixture);
@@ -67,6 +77,14 @@ BOOST_AUTO_TEST_CASE(get_index_from_entry)
 	entry.data.value1 = 15;
 
 	BOOST_CHECK_EQUAL(my_index1::get(&entry), 15);
+}
+
+BOOST_AUTO_TEST_CASE(get_index_from_fn_entry)
+{
+	my_index3 index;
+
+	my_index3::entry_type entry;
+	BOOST_CHECK_EQUAL(my_index3::get(&entry), 10);
 }
 
 BOOST_AUTO_TEST_SUITE_END();

@@ -10,9 +10,9 @@ namespace hashxx {
 template<
 	typename T,
 	typename MemberType,
-	MemberType T::* MemberAccessor
+	MemberType (T::* Func)(void)
 >
-class mem_index_type final
+class mem_fn_index_type final
 : public index_type_base
 {
 public:
@@ -22,21 +22,23 @@ public:
 
 	using index_type = index_type_impl<index_value_type>;
 public:
-	mem_index_type()
-	: index_{default_container_size}
+	mem_fn_index_type()
+	:  index_{default_container_size}
 	{}
 
-	mem_index_type(size_t index_count)
+	mem_fn_index_type(size_t index_count)
 	: index_{index_count}
 	{}
 
-	virtual ~mem_index_type() = default;
+	virtual ~mem_fn_index_type() = default;
 
 	inline void clear()
 	{ index_.clear(); }
 
 	static index_value_type get(entry_ptr ptr)
-	{ return (ptr->data).*MemberAccessor; }
+	{ 
+		return ((ptr->data).*Func)(); 
+	}
 
 	inline void update_index(size_t pos, const index_value_type& new_value, const index_value_type& old_value)
 	{
@@ -47,7 +49,7 @@ public:
 
 	inline void update_index(entry_ptr entry, const index_value_type& old_value)
 	{ 
-		index_value_type value = (entry->data).*MemberAccessor; 
+		index_value_type value = ((entry->data).*Func)(); 
 		if (value != old_value) {
 			index_[value] = entry->index;
 		}
@@ -55,7 +57,7 @@ public:
 
 	inline void update_index(entry_ptr entry)
 	{
-		index_value_type value = (entry->data).*MemberAccessor;
+		index_value_type value = ((entry->data).*Func)();
 		index_[value] = entry->index;
 	}
 

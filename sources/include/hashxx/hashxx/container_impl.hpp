@@ -1,6 +1,6 @@
 #pragma once
 
-#include <moodycamel/spsc_queue.hpp>
+#include <moodycamel/concurrent_queue.hpp>
 
 #include <hashxx/entry.hpp>
 
@@ -15,7 +15,7 @@ public:
 	using entry_ptr = entry_type*;
 	using array_entry_type = entry_ptr*;
 
-	using queue_container = moodycamel::spsc_queue<entry_ptr>;
+	using queue_container = moodycamel::concurrent_queue<entry_ptr>;
 	using queue_container_ptr = std::unique_ptr<queue_container>;
 public:
 	container_impl()
