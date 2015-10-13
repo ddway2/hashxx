@@ -89,6 +89,7 @@ public:
 		entry->data = elem;
 
 		indexes_.update_new_index(entry);
+		check_reindex();
 
 		return iterator{entry};
 	}
@@ -100,6 +101,7 @@ public:
 		entry->data = T(std::forward<Args>(args)...);
 
 		indexes_.update_new_index(entry);
+		check_reindex();
 
 		return iterator{entry};
 	}
@@ -140,8 +142,11 @@ public:
 	inline size_t capacity() const
 	{ return container_impl_.capacity(); }
 
+	inline void force_reindex()
+	{ reindex(); }
+
 private:
-	void reindex()
+	inline void reindex()
 	{
 		indexes_.clear_indexes();
 		container_impl_.for_each([&](entry_ptr entry){
@@ -149,10 +154,21 @@ private:
 		});
 	}
 
+	inline void check_reindex()
+	{
+		if (insert_count_ >= container_impl_.capacity()) {
+			insert_count_ = 0;
+			reindex();
+		}
+		++insert_count_;
+	}
+
 private:
 	container_impl_type		container_impl_;
 	container_purge_type	container_purge_;
 	indexes_type			indexes_;
+
+	size_t					insert_count_ = 0;
 
 };
 

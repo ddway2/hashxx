@@ -6,7 +6,7 @@
 namespace hashxx {
 	
 template<
-	class Container
+	typename Container
 >
 class iterator_impl {
 public:

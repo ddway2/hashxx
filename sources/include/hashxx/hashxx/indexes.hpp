@@ -91,6 +91,9 @@ public:
 	: indexes_(Indexes{index_count}...) 
 	{}
 
+	indexes_wrapper_type(const indexes_wrapper_type&) = delete;
+	indexes_wrapper_type& operator= (const indexes_wrapper_type& ) = delete;
+
 	/// Get index tuples
 	template<size_t I>
 	inline typename std::tuple_element<I, indexes_type>::type& get()
