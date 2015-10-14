@@ -128,6 +128,10 @@ public:
 		}
 	}
 
+	template<typename Callback>
+	inline void for_each(Callback&& call)
+	{ container_impl_.for_each(std::forward<Callback>(call)); }
+
 	template<size_t I>
 	inline find_wrapper<I> get()
 	{ return find_wrapper<I>{container_impl_, indexes_}; }
