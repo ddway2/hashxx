@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 			} else {
 				auto it = container.get<0>().find(count % 50000);
 				if (it != container.end()) {
-					container.modify(it, [](auto& v){
+					container.modify(it, [&](auto& v){
 						v.orig_id = count % 100;
 					});
 				}
