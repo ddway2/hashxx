@@ -47,6 +47,13 @@ public:
 		available_size_++;
 		available_queue_->enqueue(entry);
 	}
+    
+    /// Purge entries in bulk mode
+    inline void purge_removed_bulk(entry_ptr* it, size_t len) noexcept
+    {
+        available_size_ += len;
+        available_queue_->enqueue_bulk(it, len);
+    }
 
 	/// for_each
 	template<typename Function>
