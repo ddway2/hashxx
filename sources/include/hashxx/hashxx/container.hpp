@@ -110,7 +110,7 @@ public:
 	bool modify(iterator& it, Callback call)
 	{
 		bool result = false;
-		if (it.is_valid()) {
+		if (like(it.is_valid())) {
 			auto old_values = indexes_type::get_values(it.get());
 			call(*it);
 			indexes_.update_index(it.get(), old_values);
