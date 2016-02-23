@@ -72,3 +72,21 @@ int main(int argc, char** argv)
 		std::cout << "insert_count: " << (insert_count.load() / 20) << " insert/s" << std::endl;
 	}
 }
+
+#if 0
+=pod
+
+=head1 NAME
+
+ euuidgen - an expandium tool
+
+=head1 DESCRIPTION
+
+ Generate an euuid.
+
+=head1 SYNOPSIS
+
+ prog
+
+=cut
+#endif

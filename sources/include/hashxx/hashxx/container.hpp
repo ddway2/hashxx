@@ -70,6 +70,8 @@ public:
 		container_impl_type& 	impl_;
 		indexes_type&			indexes_;
 	};
+
+
 public:
 
 	container()
