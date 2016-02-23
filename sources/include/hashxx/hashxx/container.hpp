@@ -125,17 +125,17 @@ public:
 	{
 		if (like(it.is_valid())) {
 			if (!it.get()->removed.load()) {
-				container_purge_->erase_entry(it.get());
+				container_purge_.erase_entry(it.get());
 			}
 		}
 	}
 
 	template<typename Callback>
 	inline bool purge_entries(Callback&& call)
-	{ return container_purge_->purge_entries(std::forward<Callback>(call)); }
+	{ return container_purge_.purge_entries(std::forward<Callback>(call)); }
 
 	inline bool purge_entries()
-	{ return container_purge_->purge_entries(); }
+	{ return container_purge_.purge_entries(); }
 
 	template<typename Callback>
 	inline void for_each(Callback&& call)
