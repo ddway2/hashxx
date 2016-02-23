@@ -139,7 +139,12 @@ public:
 
 	template<typename Callback>
 	inline void for_each(Callback&& call)
-	{ container_impl_.for_each(std::forward<Callback>(call)); }
+	{
+		container_impl_.for_each([cb=std::move(call)](auto entry) {
+			cb(iterator{entry});
+		});
+	}
+
 
 	template<size_t I>
 	inline find_wrapper<I> get()
