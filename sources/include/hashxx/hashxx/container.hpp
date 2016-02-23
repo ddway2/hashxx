@@ -79,7 +79,7 @@ public:
 	explicit container(size_t container_size)
 	: container_impl_{container_size},
 	  container_purge_{container_impl_},
-	  indexes_{container_size}
+	  indexes_{container_size * 2}
 	{}
 
 	/// Data insertion
@@ -107,7 +107,7 @@ public:
 	}
 
 	template<typename Callback>
-	bool modify(iterator& it, Callback call)
+	bool modify(iterator& it, Callback&& call)
 	{
 		bool result = false;
 		if (like(it.is_valid())) {
@@ -127,6 +127,13 @@ public:
 			}
 		}
 	}
+
+	template<typename Callback>
+	inline bool purge_entries(Callback&& call)
+	{ return container_purge_->purge_entries(std::forward<Callback>(call)); }
+
+	inline bool purge_entries()
+	{ return container_purge_->purge_entries(); }
 
 	template<typename Callback>
 	inline void for_each(Callback&& call)

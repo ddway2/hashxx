@@ -35,9 +35,11 @@ public:
 	}
 
 	template<typename Callback>
-	void purge_entries(Callback call)
+	inline bool purge_entries(Callback&& call)
 	{
 		entry_ptr entries[1024];
+		bool processed = false;
+
 		while (size_t count = purge_queue_->try_dequeue_bulk(entries, 1024) > 0) {
 			for (size_t i = 0 ; i < count ; ++i) {
 				call(entries[i]->data);
@@ -46,12 +48,16 @@ public:
 				impl_.purge_removed(entries[i]);
 				purge_size_--;
 			}
+			processed = true;
 		}
+		return processed;
 	}
 
-	void purge_entries()
+	inline bool purge_entries()
 	{
 		entry_ptr entries[1024];
+		bool processed = false;
+
 		while (size_t count = purge_queue_->try_dequeue_bulk(entries, 1024) > 0) {
 			for (size_t i = 0 ; i < count ; ++i) {
 				entries[i]->data.~T();
@@ -59,7 +65,9 @@ public:
 				impl_.purge_removed(entries[i]);
 				purge_size_--;
 			}
+			processed = true;
 		}
+		return processed;
 	}
 
 	inline size_t size() const
