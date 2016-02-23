@@ -37,35 +37,35 @@ public:
 	template<typename Callback>
 	inline bool purge_entries(Callback&& call)
 	{
-		entry_ptr entries[1024];
+		entry_ptr entries[purge_bulk_size_];
 		bool processed = false;
 
-		while (size_t count = purge_queue_->try_dequeue_bulk(entries, 1024) > 0) {
+		while (size_t count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_) > 0) {
 			for (size_t i = 0 ; i < count ; ++i) {
 				call(entries[i]->data);
 				entries[i]->data.~T();
 				entries[i]->removed = false;
-				impl_.purge_removed(entries[i]);
 				purge_size_--;
 			}
 			processed = true;
+            impl_.purge_removed_bulk(entries, count);
 		}
 		return processed;
 	}
 
 	inline bool purge_entries()
 	{
-		entry_ptr entries[1024];
+		entry_ptr entries[purge_bulk_size_];
 		bool processed = false;
 
-		while (size_t count = purge_queue_->try_dequeue_bulk(entries, 1024) > 0) {
+		while (size_t count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_) > 0) {
 			for (size_t i = 0 ; i < count ; ++i) {
 				entries[i]->data.~T();
 				entries[i]->removed = false;
-				impl_.purge_removed(entries[i]);
 				purge_size_--;
 			}
 			processed = true;
+            impl_.purge_removed_bulk(entries, count);
 		}
 		return processed;
 	}
@@ -77,6 +77,7 @@ private:
 	container_impl_type&		impl_;
 
 	std::atomic<size_t>			purge_size_{0};
+    size_t                      purge_bulk_size_ = 1024;
 	queue_container_ptr			purge_queue_;
 };
 
