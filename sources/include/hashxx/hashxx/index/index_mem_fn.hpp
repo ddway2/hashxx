@@ -23,11 +23,13 @@ public:
 	using index_type = index_type_impl<index_value_type>;
 public:
 	mem_fn_index_type()
-	:  index_{default_container_size}
+	:  index_{default_container_size},
+	   capacity_{default_container_size}
 	{}
 
 	mem_fn_index_type(size_t index_count)
-	: index_{index_count}
+	: index_{index_count},
+	  capacity_{index_count}
 	{}
 
 	virtual ~mem_fn_index_type() = default;
@@ -36,9 +38,7 @@ public:
 	{ index_.clear(); }
 
 	static index_value_type get(entry_ptr ptr)
-	{ 
-		return ((ptr->data).*Func)(); 
-	}
+	{  return ((ptr->data).*Func)(); }
 
 	inline void update_index(size_t pos, const index_value_type& new_value, const index_value_type& old_value)
 	{
@@ -77,8 +77,12 @@ public:
 	inline size_t size() const
 	{ return index_.size(); }
 	
+	inline size_t capacity() const
+	{ return capacity_; }
+
 private:
 	index_type 				index_;
+	size_t					capacity_;
 };
 
 }	// namespace hashxx

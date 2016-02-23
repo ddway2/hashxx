@@ -10,7 +10,8 @@ namespace hashxx {
 template<
 	typename T,
 	typename MemberType,
-	MemberType T::* MemberAccessor
+	MemberType T::* MemberAccessor,
+	template<typename> class IndexType = index_type_impl
 >
 class mem_index_type final
 : public index_type_base
@@ -20,14 +21,17 @@ public:
 	using entry_ptr = entry_type*;
 	using index_value_type = MemberType;
 
-	using index_type = index_type_impl<index_value_type>;
+	//using index_type = index_type_impl<index_value_type>;
+	using index_type = IndexType<index_value_type>;
 public:
 	mem_index_type()
-	: index_{default_container_size}
+	: index_{default_container_size},
+	  capacity_{default_container_size}
 	{}
 
 	mem_index_type(size_t index_count)
-	: index_{index_count}
+	: index_{index_count},
+	  capacity_{index_count}
 	{}
 
 	virtual ~mem_index_type() = default;
@@ -75,8 +79,12 @@ public:
 	inline size_t size() const
 	{ return index_.size(); }
 	
+	inline size_t capacity() const
+	{ return capacity_; }
+
 private:
 	index_type 				index_;
+	size_t					capacity_;
 };
 
 }	// namespace hashxx
