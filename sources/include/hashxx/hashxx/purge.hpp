@@ -40,7 +40,8 @@ public:
 		entry_ptr entries[purge_bulk_size_];
 		bool processed = false;
 
-		while (size_t count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_) > 0) {
+		size_t count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_);
+		while (count > 0) {
 			for (size_t i = 0 ; i < count ; ++i) {
 				call(entries[i]->data);
 				entries[i]->data.~T();
@@ -49,6 +50,7 @@ public:
 			}
 			processed = true;
             impl_.purge_removed_bulk(entries, count);
+            count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_);
 		}
 		return processed;
 	}
@@ -58,7 +60,8 @@ public:
 		entry_ptr entries[purge_bulk_size_];
 		bool processed = false;
 
-		while (size_t count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_) > 0) {
+		size_t count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_);
+		while (count > 0) {
 			for (size_t i = 0 ; i < count ; ++i) {
 				entries[i]->data.~T();
 				entries[i]->removed = false;
@@ -66,12 +69,16 @@ public:
 			}
 			processed = true;
             impl_.purge_removed_bulk(entries, count);
+            count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_);
 		}
 		return processed;
 	}
 
 	inline size_t size() const
 	{ return purge_size_.load(); }
+
+	inline void set_purge_bulk(size_t bulk)
+	{ purge_bulk_size_ = bulk; }
 
 private:
 	container_impl_type&		impl_;

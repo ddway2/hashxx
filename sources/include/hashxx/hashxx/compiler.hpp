@@ -17,4 +17,7 @@ namespace hashxx {
 HASHXX_API std::string
 demangle_type_name(const std::string& mangled);
 
+// Forward Declaration
+class info_container;
+
 }	// namespace hashxx

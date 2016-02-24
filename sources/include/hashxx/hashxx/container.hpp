@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tuple>
-#include <iostream>
+#include <sstream>
 #include <typeinfo>
 
 #include <hashxx/entry.hpp>
@@ -15,7 +15,7 @@ namespace hashxx {
 
 struct container_base
 {
-
+	virtual void print_info(std::ostream& os) const = 0;
 };
 
 template<
@@ -155,13 +155,38 @@ public:
 	{ return iterator(); }
 
 	inline size_t size() const
-	{ return container_impl_.capacity() - container_impl_.size(); }
+	{ return container_impl_.capacity() - container_impl_.available_size(); }
 
 	inline size_t capacity() const
 	{ return container_impl_.capacity(); }
 
+	inline size_t purge_size() const
+	{ return container_purge_.size(); }
+
+	inline size_t available_size() const
+	{ return container_impl_.available_size(); }
+
+	inline uint64_t reindex_count() const
+	{ return reindex_count_.load(); }
+
 	inline void force_reindex()
 	{ reindex(); }
+
+	virtual void print_info(std::ostream& os) const override
+	{
+		os << "hashxx::container: " << std::endl;
+		os << " capacity: " << capacity() << std::endl;
+		os << " size: " << size() << std::endl;
+		os << " purge_size: " << purge_size() << std::endl;
+		os << " available_size: " << available_size() << std::endl;
+		os << " reindex_count: " << reindex_count() << std::endl;
+	}
+
+	friend std::ostream& operator<< (std::ostream& os, const self_type& c)
+	{
+		c.print_info(os);
+		return os;
+	}
 
 private:
 	inline void reindex()
@@ -170,6 +195,7 @@ private:
 		container_impl_.for_each([&](entry_ptr entry){
 			indexes_.update_new_index(entry);
 		});
+		reindex_count_++;
 	}
 
 	inline void check_reindex()
@@ -181,12 +207,16 @@ private:
 		++insert_count_;
 	}
 
+	// Friend class
+	friend class info_container;
+
 private:
 	container_impl_type		container_impl_;
 	container_purge_type	container_purge_;
 	indexes_type			indexes_;
 
 	size_t					insert_count_ = 0;
+	std::atomic<uint64_t>	reindex_count_{ 0 };
 
 };
 
