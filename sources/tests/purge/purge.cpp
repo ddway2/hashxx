@@ -27,7 +27,7 @@ struct my_struct  {
 
 struct purge_fixture
 {
-
+	my_struct m1;
 };
 
 using container_type = container_impl<my_struct>;
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(erase_entry_and_purge)
 	container_type c1;
 	purge_type p1{c1};
 
-	auto v1 = c1.available_entry();
+	auto v1 = c1.available_entry(m1);
 	destroy_struct = false;
 	p1.erase_entry(v1);
 

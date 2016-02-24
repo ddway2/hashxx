@@ -50,6 +50,7 @@ public:
 			}
 			processed = true;
             impl_.purge_removed_bulk(entries, count);
+            purged_count_ += count;
             count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_);
 		}
 		return processed;
@@ -69,6 +70,7 @@ public:
 			}
 			processed = true;
             impl_.purge_removed_bulk(entries, count);
+            purged_count_ += count;
             count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_);
 		}
 		return processed;
@@ -77,6 +79,9 @@ public:
 	inline size_t size() const
 	{ return purge_size_.load(); }
 
+	inline uint64_t purged_count() const
+	{ return purged_count_.load(); }
+
 	inline void set_purge_bulk(size_t bulk)
 	{ purge_bulk_size_ = bulk; }
 
@@ -84,6 +89,8 @@ private:
 	container_impl_type&		impl_;
 
 	std::atomic<size_t>			purge_size_{0};
+	std::atomic<uint64_t>		purged_count_{0};
+
     size_t                      purge_bulk_size_ = 1024;
 	queue_container_ptr			purge_queue_;
 };

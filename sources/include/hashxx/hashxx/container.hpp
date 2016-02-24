@@ -87,8 +87,7 @@ public:
 	/// Data insertion
 	iterator insert(const T& elem)
 	{
-		auto entry = container_impl_.available_entry();
-		entry->data = elem;
+		auto entry = container_impl_.available_entry(elem);
 
 		indexes_.update_new_index(entry);
 		check_reindex();
@@ -99,8 +98,7 @@ public:
 	template<typename ...Args>
 	iterator emplace(Args&&... args)
 	{
-		auto entry = container_impl_.available_entry();
-		entry->data = T(std::forward<Args>(args)...);
+		auto entry = container_impl_.available_entry(T{std::forward<Args>(args)...});
 
 		indexes_.update_new_index(entry);
 		check_reindex();
@@ -180,6 +178,7 @@ public:
 		os << " purge_size: " << purge_size() << std::endl;
 		os << " available_size: " << available_size() << std::endl;
 		os << " reindex_count: " << reindex_count() << std::endl;
+		os << " purged_count: " << container_purge_.purged_count() << std::endl;
 	}
 
 	friend std::ostream& operator<< (std::ostream& os, const self_type& c)

@@ -30,13 +30,14 @@ public:
 	{ release(); }
 
 	/// Available entries
-	inline entry_ptr available_entry()
+	inline entry_ptr available_entry(const value_type& v)
 	{
 		entry_ptr entry = nullptr;
 		if (!available_queue_->try_dequeue(entry)) {
 			throw std::runtime_error("no available entry");
 		}
 		available_size_--;
+		entry->data = v;
 		entry->activate = true;
 		return entry;
 	}
