@@ -35,10 +35,10 @@ public:
 	}
 
 	template<typename Callback>
-	inline bool purge_entries(Callback&& call)
+	inline bool purge_entries(Callback&& call, uint64_t bulk = 0)
 	{
 		entry_ptr entries[purge_bulk_size_];
-		bool processed = false;
+		uint64_t processed = 0;
 
 		size_t count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_);
 		while (count > 0) {
@@ -47,18 +47,21 @@ public:
 				entries[i]->removed = false;
 				purge_size_--;
 			}
-			processed = true;
+			processed += count;
             impl_.purge_removed_bulk(entries, count);
             purged_count_ += count;
+            if (bulk > 0 && count > bulk) {
+            	break;
+            }
             count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_);
 		}
-		return processed;
+		return processed > 0;
 	}
 
-	inline bool purge_entries()
+	inline bool purge_entries(uint64_t bulk = 0)
 	{
 		entry_ptr entries[purge_bulk_size_];
-		bool processed = false;
+		uint64_t processed = 0;
 
 		size_t count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_);
 		while (count > 0) {
@@ -67,12 +70,15 @@ public:
 				entries[i]->removed = false;
 				purge_size_--;
 			}
-			processed = true;
+			processed += count;
             impl_.purge_removed_bulk(entries, count);
             purged_count_ += count;
+            if (bulk > 0 && count > bulk) {
+            	break;
+            }
             count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_);
 		}
-		return processed;
+		return processed > 0;
 	}
 
 	inline size_t size() const

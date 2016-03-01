@@ -129,11 +129,11 @@ public:
 	}
 
 	template<typename Callback>
-	inline bool purge_entries(Callback&& call)
-	{ return container_purge_.purge_entries(std::forward<Callback>(call)); }
+	inline bool purge_entries(Callback&& call, uint64_t bulk = 0)
+	{ return container_purge_.purge_entries(std::forward<Callback>(call), bulk); }
 
-	inline bool purge_entries()
-	{ return container_purge_.purge_entries(); }
+	inline bool purge_entries(uint64_t bulk = 0)
+	{ return container_purge_.purge_entries(bulk); }
 
 	template<typename Callback>
 	inline void for_each(Callback&& call)

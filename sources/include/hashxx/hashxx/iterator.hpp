@@ -19,9 +19,18 @@ public:
 	using reference = value_type&;
 
 public:
+	iterator_impl()
+	: entry_{nullptr}
+	{}
+
 	explicit iterator_impl(entry_type* entry)
 	: entry_(entry)
 	{}
+
+	iterator_impl(const iterator_impl& ) = default;
+	iterator_impl(iterator_impl&& ) = default;
+	iterator_impl& operator=(const iterator_impl& ) = default;
+	iterator_impl& operator=(iterator_impl&& ) = default;
 
 	inline pointer operator->() 
 	{ 
@@ -53,9 +62,6 @@ public:
 
 	inline bool is_valid() const
 	{ return entry_ != nullptr; }
-
-	iterator_impl()
-	{}
 
 	inline entry_type* get()
 	{ return entry_; }
