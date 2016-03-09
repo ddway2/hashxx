@@ -81,6 +81,7 @@ public:
 	using entry_type = entry<T>;
 	using entry_ptr = entry_type*;
 
+	static constexpr size_t indexes_size = sizeof...(Indexes);
 
 public:
 	indexes_wrapper_type()
@@ -97,6 +98,10 @@ public:
 	/// Get index tuples
 	template<size_t I>
 	inline typename std::tuple_element<I, indexes_type>::type& get()
+	{ return std::get<I>(indexes_); }
+
+	template<size_t I>
+	inline const typename std::tuple_element<I, indexes_type>::type& get() const
 	{ return std::get<I>(indexes_); }
 
 	/// Create tuple of indexed value
@@ -133,6 +138,7 @@ public:
 
 	inline size_t size() const
 	{ return std::tuple_size<indexes_type>::value; }
+
 
 private:
 	indexes_type indexes_;

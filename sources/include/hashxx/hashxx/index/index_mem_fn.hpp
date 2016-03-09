@@ -61,7 +61,7 @@ public:
 		index_[value] = entry->index;
 	}
 
-	inline bool find(const index_value_type& v, size_t& pos)
+	inline bool find(const index_value_type& v, size_t& pos) const
 	{
 		auto found = index_.find(v);
 		if (found != index_.end()) {

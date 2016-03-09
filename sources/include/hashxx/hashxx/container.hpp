@@ -50,7 +50,7 @@ public:
 		  indexes_(indexes)
 		{}
 
-		inline iterator find(const member_type& v)
+		inline iterator find(const member_type& v) const
 		{
 			size_t pos = 0;
 			if (indexes_.get<I>().find(v, pos)) {
@@ -71,17 +71,23 @@ public:
 		indexes_type&			indexes_;
 	};
 
+	using find_wrapper_indexes = std::make_index_sequence<indexes_type::indexes_size>;
+	using find_wrapper_tuple_type = std::tuple<find_wrapper<find_wrapper_indexes>...>;
 
 public:
 
 	container()
-	: container_purge_{container_impl_}
-	{}
+	: container_purge_{container_impl_},
+	  find_wrapper_tuple_{std::make_tuple(find_wrapper<find_wrapper_indexes>{container_impl_, indexes_}...)}
+	{
+
+	}
 
 	explicit container(size_t container_size)
 	: container_impl_{container_size},
 	  container_purge_{container_impl_},
-	  indexes_{container_size * 2}
+	  indexes_{container_size * 2},
+	  find_wrapper_tuple_{std::make_tuple(find_wrapper<find_wrapper_indexes>{container_impl_, indexes_}...)}
 	{}
 
 	/// Data insertion
@@ -145,8 +151,12 @@ public:
 
 
 	template<size_t I>
-	inline find_wrapper<I> get()
-	{ return find_wrapper<I>{container_impl_, indexes_}; }
+	inline find_wrapper<I>& get()
+	{ return std::get<I>(find_wrapper_tuple_); }
+
+	template<size_t I>
+	inline const find_wrapper<I>& get() const
+	{ return std::get<I>(find_wrapper_tuple_); }
 
 
 	inline iterator end() const
@@ -213,6 +223,8 @@ private:
 	container_impl_type		container_impl_;
 	container_purge_type	container_purge_;
 	indexes_type			indexes_;
+
+	find_wrapper_tuple_type	find_wrapper_tuple_;
 
 	size_t					insert_count_ = 0;
 	std::atomic<uint64_t>	reindex_count_{ 0 };
