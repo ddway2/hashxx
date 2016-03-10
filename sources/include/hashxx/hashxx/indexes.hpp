@@ -139,7 +139,6 @@ public:
 	inline size_t size() const
 	{ return std::tuple_size<indexes_type>::value; }
 
-
 private:
 	indexes_type indexes_;
 };

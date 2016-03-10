@@ -50,7 +50,7 @@ public:
 		  indexes_(indexes)
 		{}
 
-		inline iterator find(const member_type& v) const
+		inline iterator find(const member_type& v)
 		{
 			size_t pos = 0;
 			if (indexes_.get<I>().find(v, pos)) {
@@ -71,14 +71,40 @@ public:
 		indexes_type&			indexes_;
 	};
 
-	using find_wrapper_indexes = std::make_index_sequence<indexes_type::indexes_size>;
-	using find_wrapper_tuple_type = std::tuple<find_wrapper<find_wrapper_indexes>...>;
+	template<typename Wrapper>
+	struct find_wrapper_sequence;
+
+	template<size_t ...Indices>
+	struct find_wrapper_sequence<std::index_sequence<Indices...>>
+	{
+		using type = std::tuple<find_wrapper<Indices>...>;
+
+		template<
+			typename Container,
+			typename FIndex
+		>
+		static type make(Container&& container, FIndex&& indexes)
+		{
+			return
+				std::make_tuple(
+						find_wrapper<Indices>{
+							std::forward<Container>(container),
+							std::forward<FIndex>(indexes)}...
+						);
+		}
+	};
+
+	using find_wrapper_sequence_type = find_wrapper_sequence<
+			std::make_index_sequence<indexes_type::indexes_size>
+		>;
+
+	using find_wrapper_tuple_type = typename find_wrapper_sequence_type::type;
 
 public:
 
 	container()
 	: container_purge_{container_impl_},
-	  find_wrapper_tuple_{std::make_tuple(find_wrapper<find_wrapper_indexes>{container_impl_, indexes_}...)}
+	  find_wrapper_tuple_{find_wrapper_sequence_type::make(container_impl_, indexes_)}
 	{
 
 	}
@@ -87,7 +113,7 @@ public:
 	: container_impl_{container_size},
 	  container_purge_{container_impl_},
 	  indexes_{container_size * 2},
-	  find_wrapper_tuple_{std::make_tuple(find_wrapper<find_wrapper_indexes>{container_impl_, indexes_}...)}
+	  find_wrapper_tuple_{find_wrapper_sequence_type::make(container_impl_, indexes_)}
 	{}
 
 	/// Data insertion
