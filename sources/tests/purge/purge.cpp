@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(erase_entry_and_purge)
 	int check_count = 0;
 	p1.purge_entries([&](auto& v){
 		++check_count;
-	});
+	}, 1024);
 
 	BOOST_CHECK_MESSAGE(destroy_struct, "Message destroy");
 

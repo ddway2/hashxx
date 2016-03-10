@@ -161,10 +161,10 @@ public:
 	}
 
 	template<typename Callback>
-	inline bool purge_entries(Callback&& call, uint64_t bulk = 0)
+	inline bool purge_entries(Callback&& call, uint64_t bulk)
 	{ return container_purge_.purge_entries(std::forward<Callback>(call), bulk); }
 
-	inline bool purge_entries(uint64_t bulk = 0)
+	inline bool purge_entries(uint64_t bulk)
 	{ return container_purge_.purge_entries(bulk); }
 
 	template<typename Callback>
