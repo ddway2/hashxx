@@ -58,11 +58,30 @@ BOOST_AUTO_TEST_CASE(erase_entry_and_purge)
 	int check_count = 0;
 	p1.purge_entries([&](auto& v){
 		++check_count;
-	}, 1024);
+	}, 0);
+
+	//BOOST_CHECK_MESSAGE(destroy_struct, "Message destroy");
+
+	BOOST_CHECK_EQUAL(check_count, 1);
+	BOOST_CHECK_EQUAL(p1.size(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(erase_entry_and_purge_by_dtor)
+{
+	container_type c1;
+	purge_type p1{c1};
+
+	auto v1 = c1.available_entry(m1);
+	destroy_struct = false;
+	p1.erase_entry(v1);
+
+	BOOST_CHECK_MESSAGE(!destroy_struct, "Not yet destroy");
+	BOOST_CHECK_EQUAL(p1.size(), 1);
+
+	p1.purge_entries(0);
 
 	BOOST_CHECK_MESSAGE(destroy_struct, "Message destroy");
 
-	BOOST_CHECK_EQUAL(check_count, 1);
 	BOOST_CHECK_EQUAL(p1.size(), 0);
 }
 
