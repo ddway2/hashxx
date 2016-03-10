@@ -8,7 +8,7 @@ namespace hashxx {
 template<
 	typename Container
 >
-class iterator_impl {
+class iterator_impl final {
 public:
 	using container_type = Container;
 	using value_type = typename Container::value_type;
