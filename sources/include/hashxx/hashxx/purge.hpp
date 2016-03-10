@@ -35,7 +35,7 @@ public:
 	}
 
 	template<typename Callback>
-	inline bool purge_entries(Callback&& call, uint64_t bulk = 0)
+	inline bool purge_entries(Callback&& call, uint64_t bulk)
 	{
 		entry_ptr entries[purge_bulk_size_];
 		uint64_t processed = 0;
@@ -58,7 +58,7 @@ public:
 		return processed > 0;
 	}
 
-	inline bool purge_entries(uint64_t bulk = 0)
+	inline bool purge_entries(uint64_t bulk)
 	{
 		entry_ptr entries[purge_bulk_size_];
 		uint64_t processed = 0;

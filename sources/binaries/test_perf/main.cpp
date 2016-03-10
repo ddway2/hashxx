@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <string>
 #include <hashxx/container.hpp>
 #include <hashxx/index/index_field.hpp>
 #include <hashxx/index/index_mem_fn.hpp>
@@ -34,43 +35,64 @@ std::atomic<bool> done{false};
 
 int main(int argc, char** argv)
 {
-	container_type container;
+	size_t max_count = 10000000;
+	if (argc > 1) {
+		std::string value = argv[1];
+		max_count = std::stoull(value);
+	}
+	std::cout << "Test with " << max_count << " iterations" << std::endl;
+
+	container_type container{100000};
 	std::atomic<size_t> insert_count{0};
-
-	std::thread t_insert([&](){
-		size_t count = 0;
-		while (!done.load()) {
-			fake_bearer b;
-
-			b.orig_id = count % 100000;
-			b.dest_id = (count % 100000) + (count % 100);
-
-			if (count % 30 == 0) {
-				container.insert(b);
-				++insert_count;
-			} else {
-				auto it = container.get<0>().find(count % 50000);
-				if (it != container.end()) {
-					container.modify(it, [&](auto& v){
-						v.orig_id = count % 100;
-					});
-				}
-			}
-			++count;
-			
-		}
-	});
 
 	std::thread t_purge([&](){
 		while (!done.load()) {
-			//TODO: purge entry
+			container.purge_entries(1024);
 		}
 	});
 
+	auto start = std::chrono::system_clock::now();
+	size_t count = 0;
 	while (!done.load()) {
-		std::this_thread::sleep_for(std::chrono::seconds(20));
-		std::cout << "insert_count: " << (insert_count.load() / 20) << " insert/s" << std::endl;
+		fake_bearer b;
+
+		b.orig_id = count % 100000;
+		b.dest_id = (count % 100000) + (count % 100);
+
+		if (count % 10 == 0) {
+			container.insert(b);
+			++insert_count;
+		} else {
+			auto it = container.get<0>().find(count % 500);
+			if (it != container.end()) {
+				container.modify(it, [&](auto& v){
+					v.orig_id = count % 100;
+				});
+			}
+		}
+		auto it = container.get<0>().find(count % 1000);
+		if (it != container.end()) {
+			container.modify(it, [&](auto& v){
+				v.orig_id = count % 200;
+			});
+		}
+		++count;
+
+		if (count % 10 == 0) {
+			auto found = container.get<0>().find(count % 1500);
+			container.erase(found);
+		}
+
+		if (count > 10000000)
+			break;
 	}
+	auto stop = std::chrono::system_clock::now();
+	t_purge.join();
+
+	auto delay = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+	std::cout << "Duration (us): " << delay << std::endl;
+	std::cout << "Msg/s: " << (max_count / ((float)delay / 1000000.0f)) << std::endl;
+	std::cout << "Msg duration avg: " << (delay / max_count) << std::endl;
 }
 
 #if 0
