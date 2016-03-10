@@ -139,6 +139,10 @@ public:
 	inline size_t size() const
 	{ return std::tuple_size<indexes_type>::value; }
 
+	template<typename Callback>
+	inline void impl_for_each(Callback&& call)
+	{ detail::for_each(indexes_, std::forward<Callback>(call)); }
+
 private:
 	indexes_type indexes_;
 };

@@ -10,7 +10,8 @@ namespace hashxx {
 template<
 	typename T,
 	typename MemberType,
-	MemberType (T::* Func)(void)
+	MemberType (T::* Func)(void),
+	template<typename> class IndexType = index_type_impl
 >
 class mem_fn_index_type final
 : public index_type_base
@@ -20,7 +21,8 @@ public:
 	using entry_ptr = entry_type*;
 	using index_value_type = MemberType;
 
-	using index_type = index_type_impl<index_value_type>;
+	//using index_type = index_type_impl<index_value_type>;
+	using index_type = IndexType<index_value_type>;
 public:
 	mem_fn_index_type()
 	:  index_{default_container_size},
@@ -79,6 +81,9 @@ public:
 	
 	inline size_t capacity() const
 	{ return capacity_; }
+
+	inline index_type& impl()
+	{ return index_; }
 
 private:
 	index_type 				index_;

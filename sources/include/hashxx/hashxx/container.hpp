@@ -206,6 +206,10 @@ public:
 	inline void force_reindex()
 	{ reindex(); }
 
+	template<typename Callback>
+	inline void impl_for_each(Callback&& callback)
+	{ indexes_.impl_for_each(std::forward<Callback>(callback)); }
+
 	virtual void print_info(std::ostream& os) const override
 	{
 		os << "hashxx::container: " << std::endl;

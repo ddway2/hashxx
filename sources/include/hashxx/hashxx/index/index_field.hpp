@@ -82,6 +82,9 @@ public:
 	inline size_t capacity() const
 	{ return capacity_; }
 
+	inline index_type& impl()
+	{ return index_; }
+
 private:
 	index_type 				index_;
 	size_t					capacity_;
