@@ -35,14 +35,14 @@ std::atomic<bool> done{false};
 
 int main(int argc, char** argv)
 {
-	size_t max_count = 10000000;
+	size_t max_count = 100000000;
 	if (argc > 1) {
 		std::string value = argv[1];
 		max_count = std::stoull(value);
 	}
 	std::cout << "Test with " << max_count << " iterations" << std::endl;
 
-	container_type container{100000};
+	container_type container{200000};
 	std::atomic<size_t> insert_count{0};
 
 	std::thread t_purge([&](){
@@ -63,36 +63,50 @@ int main(int argc, char** argv)
 			container.insert(b);
 			++insert_count;
 		} else {
-			auto it = container.get<0>().find(count % 500);
+			auto it = container.get<0>().find(count % 100000);
 			if (it != container.end()) {
 				container.modify(it, [&](auto& v){
-					v.orig_id = count % 100;
+					v.dest_id = count % 100;
 				});
 			}
 		}
-		auto it = container.get<0>().find(count % 1000);
+		auto it = container.get<0>().find(count % 100000);
 		if (it != container.end()) {
 			container.modify(it, [&](auto& v){
-				v.orig_id = count % 200;
+				v.dest_id = count % 200;
 			});
 		}
-		++count;
+
 
 		if (count % 10 == 0) {
-			auto found = container.get<0>().find(count % 1500);
+			auto found = container.get<0>().find(count % 100000 + 1000);
 			container.erase(found);
 		}
 
-		if (count > 10000000)
-			break;
+		++count;
+
+		if (count > max_count)
+			done = true;
+
+		if (count % 500000 == 0) {
+			auto step = std::chrono::system_clock::now();
+			auto delay = std::chrono::duration_cast<std::chrono::microseconds>(step - start).count();
+			std::cout << "PDU count: " << count << std::endl;
+			std::cout << "Msg/s: " << (uint64_t)(count / ((float)delay / 1000000.0f)) << std::endl;
+			std::cout << container << std::endl;
+		}
+
+		//container.purge_entries(1024);
 	}
 	auto stop = std::chrono::system_clock::now();
 	t_purge.join();
 
 	auto delay = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
 	std::cout << "Duration (us): " << delay << std::endl;
-	std::cout << "Msg/s: " << (max_count / ((float)delay / 1000000.0f)) << std::endl;
-	std::cout << "Msg duration avg: " << (delay / max_count) << std::endl;
+	std::cout << "Msg/s: " << (uint64_t)(max_count / ((float)delay / 1000000.0f)) << std::endl;
+	std::cout << "Msg duration avg: " << ((float)delay / (float)max_count) << std::endl;
+
+	std::cout << container << std::endl;
 }
 
 #if 0
