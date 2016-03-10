@@ -88,14 +88,6 @@ int main(int argc, char** argv)
 		if (count > max_count)
 			done = true;
 
-		if (count % 500000 == 0) {
-			auto step = std::chrono::system_clock::now();
-			auto delay = std::chrono::duration_cast<std::chrono::microseconds>(step - start).count();
-			std::cout << "PDU count: " << count << std::endl;
-			std::cout << "Msg/s: " << (uint64_t)(count / ((float)delay / 1000000.0f)) << std::endl;
-			std::cout << container << std::endl;
-		}
-
 		//container.purge_entries(1024);
 	}
 	auto stop = std::chrono::system_clock::now();
