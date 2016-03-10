@@ -3,6 +3,7 @@
 #include <moodycamel/concurrent_queue.hpp>
 
 #include <hashxx/entry.hpp>
+#include <hashxx/compiler.hpp>
 
 namespace hashxx {
 
@@ -33,7 +34,7 @@ public:
 	inline entry_ptr available_entry(const value_type& v)
 	{
 		entry_ptr entry = nullptr;
-		if (!available_queue_->try_dequeue(entry)) {
+		if (unlike(!available_queue_->try_dequeue(entry))) {
 			throw std::runtime_error("no available entry");
 		}
 		available_size_--;
@@ -99,11 +100,10 @@ private:
 	}
 
 private:
-	size_t container_size_{0};
-	array_entry_type	container_{nullptr};
+	size_t 					container_size_{0};
+	array_entry_type		container_{nullptr};
 
 	std::atomic<size_t>		available_size_{0};
-
 	queue_container_ptr		available_queue_;
 };
 

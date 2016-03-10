@@ -19,9 +19,7 @@ public:
 public:
 	container_purge(container_impl_type& impl)
 	: impl_(impl)
-	{
-		purge_queue_ = std::make_unique<queue_container>(impl_.capacity());
-	}
+	{ purge_queue_ = std::make_unique<queue_container>(impl_.capacity()); }
 
 	inline void erase_entry(entry_ptr entry)
 	{

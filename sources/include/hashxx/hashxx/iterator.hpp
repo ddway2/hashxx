@@ -35,7 +35,7 @@ public:
 	inline pointer operator->() 
 	{ 
 		pointer result = nullptr;
-		if (like(entry_)) {
+		if (like(entry_ != nullptr)) {
 			result = &(entry_->data);
 		} else {
 			throw std::runtime_error("hashxx::iterator_impl operator-> - cannot dereference null value");
@@ -46,7 +46,7 @@ public:
 	inline reference operator*()
 	{
 		pointer result = nullptr;
-		if (like(entry_)) {
+		if (like(entry_ != nullptr)) {
 			result = &(entry_->data);
 		} else {
 			throw std::runtime_error("hash::iterator_impl operator* - cannot dereference null value");

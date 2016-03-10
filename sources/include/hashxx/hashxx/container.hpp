@@ -224,6 +224,7 @@ public:
 	}
 
 private:
+
 	inline void reindex()
 	{
 		indexes_.clear_indexes();
