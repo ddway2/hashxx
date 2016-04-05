@@ -154,9 +154,7 @@ public:
 	void erase(iterator it)
 	{
 		if (like(it.is_valid())) {
-			if (!it.get()->removed.load()) {
-				container_purge_.erase_entry(it.get());
-			}
+			container_purge_.erase_entry(it.get());
 		}
 	}
 
