@@ -127,6 +127,16 @@ public:
 		return iterator{entry};
 	}
 
+	iterator insert(T&& elem)
+	{
+		auto entry = container_impl_.available_entry(std::forward<T>(elem));
+
+		indexes_.update_new_index(entry);
+		check_reindex();
+
+		return iterator{entry};
+	}
+
 	template<typename ...Args>
 	iterator emplace(Args&&... args)
 	{

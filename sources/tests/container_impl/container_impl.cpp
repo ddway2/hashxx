@@ -1,4 +1,6 @@
 #define BOOST_TEST_MODULE container_impl
+
+#include <atomic>
 #include <hashxx/unit_test.hpp>
 #include <hashxx/system_config.hpp>
 
@@ -11,13 +13,24 @@ struct my_struct {
 	uint64_t value2;
 };
 
+struct my_noncopyable_struct {
+	std::unique_ptr<uint64_t>	value1;
+};
+
+struct my_emplace_struct {
+	std::atomic<uint64_t>	value1;
+};
+
 struct container_fixture
 {
 	my_struct m1;
+	my_noncopyable_struct m2;
+	my_emplace_struct m3;
 };
 
 using container_type = container_impl<my_struct>;
-
+using container_noncopyable_type = container_impl<my_noncopyable_struct>;
+using container_emplace_type = container_impl<my_emplace_struct>;
 
 BOOST_FIXTURE_TEST_SUITE(container_impl_test, container_fixture);
 
@@ -33,6 +46,18 @@ BOOST_AUTO_TEST_CASE(create_container_and_get_1_entry)
 	BOOST_CHECK(v1 != nullptr);
 
 }
+
+BOOST_AUTO_TEST_CASE(create_container_and_get_entry_by_move)
+{
+	container_noncopyable_type c1{1000};
+
+	auto v1 = c1.available_entry(std::move(m2));
+
+	BOOST_CHECK_EQUAL(c1.capacity(), 1000);
+	BOOST_CHECK_EQUAL(c1.available_size(), 999);
+	BOOST_CHECK(v1 != nullptr);
+}
+
 
 BOOST_AUTO_TEST_CASE(get_and_retrieve_entry)
 {

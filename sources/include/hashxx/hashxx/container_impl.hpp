@@ -43,6 +43,19 @@ public:
 		return entry;
 	}
 
+	/// Available entry (move semantic)
+	inline entry_ptr available_entry(value_type&& v)
+	{
+		entry_ptr entry = nullptr;
+		if (unlike(!available_queue_->try_dequeue(entry))) {
+			throw std::runtime_error("no available entry");
+		}
+		available_size_--;
+		entry->data = std::move(v);
+		entry->activate = true;
+		return entry;
+	}
+
 	/// Purge entries
 	inline void purge_removed(entry_ptr entry) noexcept
 	{
