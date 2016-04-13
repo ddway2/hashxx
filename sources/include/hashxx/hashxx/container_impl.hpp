@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdlib>
+
 #include <moodycamel/concurrent_queue.hpp>
 
 #include <hashxx/entry.hpp>
@@ -18,6 +20,8 @@ public:
 
 	using queue_container = moodycamel::concurrent_queue<entry_ptr>;
 	using queue_container_ptr = std::unique_ptr<queue_container>;
+
+	constexpr static size_t value_size = sizeof(T);
 public:
 	container_impl()
 	: container_size_(default_container_size)
@@ -38,7 +42,8 @@ public:
 			throw std::runtime_error("no available entry");
 		}
 		available_size_--;
-		entry->data = v;
+		new (entry->data) value_type();
+		*(entry->data) = v;
 		entry->activate = true;
 		return entry;
 	}
@@ -51,7 +56,22 @@ public:
 			throw std::runtime_error("no available entry");
 		}
 		available_size_--;
-		entry->data = std::move(v);
+		new (entry->data) value_type();
+		*(entry->data) = std::move(v);
+		entry->activate = true;
+		return entry;
+	}
+
+	/// Emplace entry
+	template<typename ...Args>
+	entry_ptr emplace_entry(Args&& ...args)
+	{
+		entry_ptr entry = nullptr;
+		if (unlike(!available_queue_->try_dequeue(entry))) {
+			throw std::runtime_error("no available entry");
+		}
+		available_size_--;
+		new (entry->data) value_type(std::forward<Args>(args)...);
 		entry->activate = true;
 		return entry;
 	}

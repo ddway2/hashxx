@@ -58,6 +58,16 @@ BOOST_AUTO_TEST_CASE(create_container_and_get_entry_by_move)
 	BOOST_CHECK(v1 != nullptr);
 }
 
+BOOST_AUTO_TEST_CASE(create_container_and_entry_by_inplace)
+{
+	container_emplace_type c1{1000};
+
+	auto v1 = c1.emplace_entry();
+
+	BOOST_CHECK_EQUAL(c1.capacity(), 1000);
+	BOOST_CHECK_EQUAL(c1.available_size(), 999);
+	BOOST_CHECK(v1 != nullptr);
+}
 
 BOOST_AUTO_TEST_CASE(get_and_retrieve_entry)
 {

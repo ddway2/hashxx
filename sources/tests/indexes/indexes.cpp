@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(index_with_object)
 	my_index1 index;
 
 	my_index1::entry_type entry;
-	entry.data.value1 = 3;
+	entry.data->value1 = 3;
 
 	index.update_index(&entry);
 	BOOST_CHECK_EQUAL(index.size(), 1);	
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(get_index_from_entry)
 	my_index1 index;
 
 	my_index1::entry_type entry;
-	entry.data.value1 = 15;
+	entry.data->value1 = 15;
 
 	BOOST_CHECK_EQUAL(my_index1::get(&entry), 15);
 }

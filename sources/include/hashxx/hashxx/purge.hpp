@@ -41,7 +41,8 @@ public:
 		size_t count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_);
 		while (count > 0) {
 			for (size_t i = 0 ; i < count ; ++i) {
-				call(entries[i]->data);
+				call(*(entries[i]->data));
+				entries[i]->data->~T();
 				entries[i]->removed = false;
 				purge_size_--;
 			}
@@ -64,7 +65,7 @@ public:
 		size_t count = purge_queue_->try_dequeue_bulk(entries, purge_bulk_size_);
 		while (count > 0) {
 			for (size_t i = 0 ; i < count ; ++i) {
-				entries[i]->data.~T();
+				entries[i]->data->~T();
 				entries[i]->removed = false;
 				purge_size_--;
 			}

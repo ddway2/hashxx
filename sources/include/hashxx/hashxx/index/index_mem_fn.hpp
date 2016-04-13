@@ -40,7 +40,7 @@ public:
 	{ index_.clear(); }
 
 	static index_value_type get(entry_ptr ptr)
-	{  return ((ptr->data).*Func)(); }
+	{  return (*(ptr->data).*Func)(); }
 
 	inline void update_index(size_t pos, const index_value_type& new_value, const index_value_type& old_value)
 	{
@@ -51,7 +51,7 @@ public:
 
 	inline void update_index(entry_ptr entry, const index_value_type& old_value)
 	{ 
-		index_value_type value = ((entry->data).*Func)(); 
+		index_value_type value = (*(entry->data).*Func)();
 		if (value != old_value) {
 			index_[value] = entry->index;
 		}
@@ -59,7 +59,7 @@ public:
 
 	inline void update_index(entry_ptr entry)
 	{
-		index_value_type value = ((entry->data).*Func)();
+		index_value_type value = (*(entry->data).*Func)();
 		index_[value] = entry->index;
 	}
 

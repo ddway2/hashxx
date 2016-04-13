@@ -140,7 +140,7 @@ public:
 	template<typename ...Args>
 	iterator emplace(Args&&... args)
 	{
-		auto entry = container_impl_.available_entry(T{std::forward<Args>(args)...});
+		auto entry = container_impl_.emplace_entry(std::forward<Args>(args)...);
 
 		indexes_.update_new_index(entry);
 		check_reindex();
