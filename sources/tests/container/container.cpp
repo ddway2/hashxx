@@ -144,4 +144,21 @@ BOOST_AUTO_TEST_CASE(emplace_100_element_and_loop_for_each)
 	BOOST_CHECK_MESSAGE(count == 100, "Check number of message");
 }
 
+BOOST_AUTO_TEST_CASE(insert_100_moveable_element_and_loop_foreach)
+{
+	container_type c1{1000};
+
+	for (uint32_t i = 0 ; i < 100 ; ++i) {
+		my_struct c{i, i + 2000, "toto " + std::to_string(i)};
+		c1.insert(std::move(c));
+	}
+
+	uint32_t count = 0;
+	c1.for_each([&](auto it) {
+		BOOST_CHECK_EQUAL(it->value1, count);
+		count++;
+	});
+	BOOST_CHECK_MESSAGE(count == 100, "Check number of message");
+}
+
 BOOST_AUTO_TEST_SUITE_END();
