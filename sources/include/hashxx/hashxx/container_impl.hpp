@@ -101,12 +101,15 @@ public:
 		}
 	}
 
+	/// At function
 	inline entry_ptr at(size_t i)
 	{ return container_[i]; }
 
+	/// Available size in container
 	inline size_t available_size() const
 	{ return available_size_.load(); }
 
+	/// Max capacity
 	inline size_t capacity() const
 	{ return container_size_; }
 
