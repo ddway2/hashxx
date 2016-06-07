@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(instanciate_purge)
 
 BOOST_AUTO_TEST_CASE(erase_entry_and_purge)
 {
-	container_type c1;
+	container_type c1{1000};
 	purge_type p1{c1};
 
 	auto v1 = c1.available_entry(m1);
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(erase_entry_and_purge)
 
 BOOST_AUTO_TEST_CASE(erase_entry_and_purge_by_dtor)
 {
-	container_type c1;
+	container_type c1{1000};
 	purge_type p1{c1};
 
 	auto v1 = c1.available_entry(m1);

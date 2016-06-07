@@ -16,7 +16,7 @@ public:
 	using value_type = T;
 	using entry_type = entry<T>;
 	using entry_ptr = entry_type*;
-	using array_entry_type = entry_ptr*;
+	using array_entry_type = entry_type*;
 
 	using queue_container = moodycamel::concurrent_queue<entry_ptr>;
 	using queue_container_ptr = std::unique_ptr<queue_container>;
@@ -39,7 +39,7 @@ public:
 	{
 		entry_ptr entry = nullptr;
 		if (unlike(!available_queue_->try_dequeue(entry))) {
-			throw std::runtime_error("no available entry");
+			throw std::runtime_error("available_entry: no available entry");
 		}
 		available_size_--;
 		new (entry->data) value_type();
@@ -53,7 +53,7 @@ public:
 	{
 		entry_ptr entry = nullptr;
 		if (unlike(!available_queue_->try_dequeue(entry))) {
-			throw std::runtime_error("no available entry");
+			throw std::runtime_error("available_entry: no available entry");
 		}
 		available_size_--;
 		new (entry->data) value_type();
@@ -68,7 +68,7 @@ public:
 	{
 		entry_ptr entry = nullptr;
 		if (unlike(!available_queue_->try_dequeue(entry))) {
-			throw std::runtime_error("no available entry");
+			throw std::runtime_error("emplace_entry: no available entry");
 		}
 		available_size_--;
 		new (entry->data) value_type(std::forward<Args>(args)...);
@@ -80,14 +80,18 @@ public:
 	inline void purge_removed(entry_ptr entry) noexcept
 	{
 		available_size_++;
-		available_queue_->enqueue(entry);
+		if (unlike(!available_queue_->try_enqueue(entry))) {
+			throw std::runtime_error("purge_removed: try enqueue failed");
+		}
 	}
     
     /// Purge entries in bulk mode
     inline void purge_removed_bulk(entry_ptr* it, size_t len) noexcept
     {
         available_size_ += len;
-        available_queue_->enqueue_bulk(it, len);
+        if (unlike(!available_queue_->try_enqueue_bulk(it, len))) {
+        	throw std::runtime_error("purge_removed_bulk: try enqueue failed");
+        }
     }
 
 	/// for_each
@@ -95,15 +99,15 @@ public:
 	inline void for_each(Function&& f)
 	{
 		for (size_t i = 0 ; i < container_size_ ; ++i) {
-			if (container_[i]->activate.load()) {
-				f(container_[i]);
+			if (container_[i].activate.load()) {
+				f(&(container_[i]));
 			}
 		}
 	}
 
 	/// At function
 	inline entry_ptr at(size_t i)
-	{ return container_[i]; }
+	{ return &(container_[i]); }
 
 	/// Available size in container
 	inline size_t available_size() const
@@ -115,25 +119,19 @@ public:
 
 private:
 	void init() {
-		container_ = new entry_ptr[container_size_];
+		container_ = new entry_type[container_size_];
 		available_queue_ = std::make_unique<queue_container>(container_size_);
 
 		for (size_t i = 0 ; i < container_size_ ; ++i) {
-			container_[i] = new entry_type();
-			container_[i]->index = i;
-			available_queue_->enqueue(container_[i]);
+			container_[i].index = i;
+			available_queue_->enqueue(&(container_[i]));
 		}
 		available_size_ = container_size_;
 
 	}
 
-	void release() {
-		for (size_t i = 0 ; i < container_size_ ; ++i) {
-			delete container_[i];
-			container_[i] = nullptr;
-		}
-		delete [] container_;
-	}
+	void release()
+	{ delete [] container_; }
 
 private:
 	size_t 					container_size_{0};
