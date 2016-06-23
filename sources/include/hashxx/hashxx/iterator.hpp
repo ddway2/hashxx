@@ -16,7 +16,9 @@ public:
 
 	using self_type = iterator_impl;
 	using pointer = value_type*;
+	using const_pointer = const value_type*;
 	using reference = value_type&;
+	using const_reference = const value_type&;
 
 public:
 	iterator_impl()
@@ -43,13 +45,35 @@ public:
 		return result; 
 	}
 
+	inline pointer operator->() const
+	{
+		pointer result = nullptr;
+		if (like(entry_ != nullptr)) {
+			result = entry_->data;
+		} else {
+			throw std::runtime_error("hashxx::iterator_impl operator-> - cannot dereference null value");
+		}
+		return result;
+	}
+
 	inline reference operator*()
 	{
 		pointer result = nullptr;
 		if (like(entry_ != nullptr)) {
 			result = entry_->data;
 		} else {
-			throw std::runtime_error("hash::iterator_impl operator* - cannot dereference null value");
+			throw std::runtime_error("hashxx::iterator_impl operator* - cannot dereference null value");
+		}
+		return *result;
+	}
+
+	inline reference operator*() const
+	{
+		pointer result = nullptr;
+		if (like(entry_ != nullptr)) {
+			result = entry_->data;
+		} else {
+			throw std::runtime_error("hashxx::iterator_impl operator* - cannot dereference null value");
 		}
 		return *result;
 	}
